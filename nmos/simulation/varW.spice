@@ -1,0 +1,48 @@
+********* SIM **********
+.lib /usr/local/share/pdk/sky130A/libs.tech/ngspice/sky130.lib.spice tt
+.include nmos_characterization.spice
+
+*Vds VD VS 1.5V
+Vdgnd VD GND 850mV
+*Vgs VG VS 900mV
+Vgd VG VD 0.0V
+*Vsb VS VB 0.0V
+Vbgnd VB GND 0.0V
+Vsgnd VS GND 0.0V
+
+.op
+*.dc Vgs 0.0 1.5 0.001
+*.dc Vds 0.0 3.3 0.001
+*.dc Vdgnd 0.0 1.0 0.001
+*.dc Vsb 0.0 1.95 0.01
+
+.control
+    setplot new
+    setplot const
+    let start_w = 1.2
+    let stop_w = 1.3
+    let delta_w = 0.01
+    let w_act = start_w
+    let count = 0
+    set output_plot = 'unknown1'
+    * loop
+    while const.w_act le const.stop_w
+	let count = $&count + 1
+	alter @m.xm1.msky130_fd_pr__nfet_g5v0d10v5[w] const.w_act
+	save all @m.xm1.msky130_fd_pr__nfet_g5v0d10v5[w] @m.xm1.msky130_fd_pr__nfet_g5v0d10v5[vth]
+    	run
+	*let ids = -I(Vds)
+	let ids = -I(Vdgnd)
+	setplot $output_plot
+	*let ids_{$&const.w_act} = dc{$&count}.ids
+    	let const.w_act = const.w_act + const.delta_w
+	*print @m.xm1.msky130_fd_pr__nfet_g5v0d10v5[vth]
+    end
+    
+    setplot $output_plot
+    *plot all vs $&"dc1.v-sweep" ylabel 'Ids' xlabel 'Vds'
+    *plot all vs $&"dc1.v-sweep" ylabel 'Ids' xlabel 'Vgs'
+    print all.@m.xm1.msky130_fd_pr__nfet_g5v0d10v5[vth] all.vdgnd#branch
+.endc
+
+.end

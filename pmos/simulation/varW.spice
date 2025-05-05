@@ -1,0 +1,42 @@
+********** VARW-PMOS **********
+.lib /usr/local/share/pdk/sky130A/libs.tech/ngspice/sky130.lib.spice tt
+.include test_bench.spice
+
+*Vds VD VS -3.3V
+Vdgnd VD GND 850mV
+*Vgs VG VS 1.2V
+Vgd VG VD 0.0V
+Vbs VB VS 0.0V
+Vsgnd VS GND 3.3V
+
+*.dc VGS -1.95 0.0 0.01
+*.dc Vds -3.3 0.0 0.01
+*.dc Vdgnd 0.0 3.3 0.01
+.op	
+
+.control
+    setplot new
+    setplot const
+    let start_w = 0.42
+    let stop_w = 5
+    let delta_w = 1
+    let w_act = start_w
+    let count = 0
+    set output_plot = 'unknown1'
+    * loop
+    while const.w_act le const.stop_w
+	let count = $&count + 1
+	alter @m.xm2.msky130_fd_pr__pfet_g5v0d10v5[w] const.w_act
+	save all @m.xm2.msky130_fd_pr__pfet_g5v0d10v5[w]
+    	run
+	*let ids = I(Vds)
+	let ids = I(Vdgnd)
+	setplot $output_plot
+	*let ids_{$&const.w_act} = dc{$&count}.ids
+    	let const.w_act = const.w_act + const.delta_w
+    end
+    
+    setplot $output_plot
+    *plot all vs $&"dc1.v-sweep" ylabel 'Ids' xlabel 'Vds'
+    print all.vdgnd#branch
+.endc

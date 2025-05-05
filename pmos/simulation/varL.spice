@@ -1,0 +1,44 @@
+********** VARL-PMOS **********
+.lib /usr/local/share/pdk/sky130A/libs.tech/ngspice/sky130.lib.spice tt
+.include test_bench.spice
+
+*Vds VD VS -3.3V
+Vdgnd VD GND 850mV
+*Vgs VG VS 1.2V
+*Vgd VG VD 0.0V
+Vbs VB VS 0.0V
+Vsgnd VS GND 3.3V
+
+*.dc VGS -1.95 0.0 0.01
+*.dc Vds -2.9 0.0 0.01
+.op
+
+.control
+    setplot new
+    setplot const
+    let start_l = 1.8
+    let stop_l = 1.9
+    let delta_l = 0.01
+    let l_act = start_l
+    let count = 0
+    set output_plot = 'unknown1'
+    * loop
+    while const.l_act le const.stop_l
+	let count = $&count + 1
+	alter @m.xm2.msky130_fd_pr__pfet_g5v0d10v5[l] const.l_act
+	alter @m.xm1.msky130_fd_pr__pfet_g5v0d10v5[l] const.l_act
+	*alter @m.xm3.msky130_fd_pr__pfet_g5v0d10v5[l] const.l_act
+	*alter @m.xm4.msky130_fd_pr__pfet_g5v0d10v5[l] const.l_act
+	save all @m.xm1.msky130_fd_pr__pfet_g5v0d10v5[l] @m.xm2.msky130_fd_pr__pfet_g5v0d10v5[l] @m.xm1.msky130_fd_pr__pfet_g5v0d10v5[vth] @m.xm2.msky130_fd_pr__pfet_g5v0d10v5[vth]
+	*@m.xm3.msky130_fd_pr__pfet_g5v0d10v5[l] @m.xm4.msky130_fd_pr__pfet_g5v0d10v5[l]
+    	run      
+	let ids = I(Vdgnd)
+	setplot $output_plot
+	*let ids_{$&const.l_act} = dc{$&count}.ids
+    	let const.l_act = const.l_act + const.delta_l
+    end
+    
+    setplot $output_plot
+    *plot all vs $&"dc1.v-sweep" ylabel 'Ids' xlabel 'Vds'
+    print all.vdgnd#branch all.@m.xm1.msky130_fd_pr__pfet_g5v0d10v5[vth]
+.endc

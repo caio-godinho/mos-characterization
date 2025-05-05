@@ -1,0 +1,25 @@
+********** SIM **********
+.lib /usr/local/share/pdk/sky130A/libs.tech/ngspice/sky130.lib.spice tt
+.include test_bench.spice
+
+*Vds VD VS -3.3V
+Vdgnd VD GND 850mV
+*Vgs VG VS -1.5V
+*Vgd VG VD 0.0V
+*Vggnd VG GND 1.8V
+Vbs VB VS 0.0V
+Vsgnd VS GND 3.3V
+
+*.op
+*.dc VGS -1.95 0.0 0.01
+*.dc Vds -1.0 0.0 0.01
+.dc Vdgnd 0.0 1.0 0.01
+
+.control
+    save all @m.xm2.msky130_fd_pr__pfet_g5v0d10v5
+    run
+    *plot i(vds)
+    plot i(vdgnd)
+.endc
+
+.end

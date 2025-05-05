@@ -1,0 +1,26 @@
+********** SIM **********
+.lib /usr/local/share/pdk/sky130A/libs.tech/ngspice/sky130.lib.spice tt
+.include nmos_characterization.spice
+
+*Vds VD VS 900mV
+Vdgnd VD GND 300mV
+*Vgs VG VS 900mV
+Vggnd VG GND 850mV
+*Vsb VS VB 0.0V
+Vbgnd VB GND 0.0V
+Vsgnd VS GND 0.0V
+
+*.op
+*.dc Vgs 0.0 1.5 0.001
+.dc Vggnd 0.0 1.0 0.001
+*.dc Vds 0 3 0.001
+*.dc Vsb 0.0 1.95 0.01
+
+.control
+    save all 
+    run
+    *plot -i(vds)
+    plot -i(vdgnd)
+.endc
+
+.end

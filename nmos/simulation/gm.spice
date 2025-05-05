@@ -1,0 +1,46 @@
+
+********* GM **********
+.lib /usr/local/share/pdk/sky130A/libs.tech/ngspice/sky130.lib.spice tt
+.include nmos_characterization.spice
+
+*Vds VD VS 1.5V
+Vdgnd VD GND 1.5V
+*Vgs VG VS 900mV
+Vggnd VG GND 1.2V
+*Vsb VS VB 0.0V
+Vbgnd VB GND 0.0V
+Vsgnd VS GND 300mV
+
+.op
+*.dc Vgs 0.0 1.5 0.001
+*.dc Vds 0.0 3.3 0.001
+*.dc Vdgnd 300m 3.3 0.01
+*.dc Vsb 0.0 1.95 0.01
+
+.control
+    setplot new
+    setplot new
+    setplot const
+    let start_w = 0.42
+    let stop_w = 200
+    let delta_w = 0.1
+    let w_act = start_w
+    let width_w = ((const.stop_w - const.start_w)/ const.delta_w) + 1
+    let w_values = vector(const.width_w)
+    let gm_values = vector(const.width_w)
+    let count = 0
+    * loop
+    while const.w_act le const.stop_w
+	let count = $&count + 1
+	alter @m.xm1.msky130_fd_pr__nfet_g5v0d10v5[w] const.w_act
+	save all @m.xm1.msky130_fd_pr__nfet_g5v0d10v5[w] @m.xm1.msky130_fd_pr__nfet_g5v0d10v5[gm]
+    	run
+    	let const.w_act = const.w_act + const.delta_w
+	let const.w_values[count] = const.w_act
+	let const.gm_values[count] = @m.xm1.msky130_fd_pr__nfet_g5v0d10v5[gm]
+    end
+    setplot const
+    plot gm_values vs w_values ylabel 'gm' xlabel 'W'
+.endc
+
+.end

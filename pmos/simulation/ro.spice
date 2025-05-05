@@ -1,0 +1,40 @@
+********** RO-PMOS-TESTBENCH **********
+.lib /usr/local/share/pdk/sky130A/libs.tech/ngspice/sky130.lib.spice tt
+.include test_bench.spice
+
+Vds VD VS -3.3V
+Vgs VG VS -1.5V
+*Vgd VG VD 0.0V
+Vbs VB VS 0.0V
+Vsgnd VS GND 3.3V
+
+*.dc VGS -1.95 0.0 0.01
+.dc Vds -2.15 -0.75 0.01
+
+.control
+    setplot new
+    setplot const
+    let start_l = 11
+    let stop_l = 20
+    let delta_l = 1
+    let l_act = start_l
+    let count = 0
+    set output_plot = 'unknown1'
+    * loop
+    while const.l_act le const.stop_l
+	let count = $&count + 1
+	alter @m.xm2.msky130_fd_pr__pfet_g5v0d10v5[l] const.l_act
+	save all @m.xm2.msky130_fd_pr__pfet_g5v0d10v5[l]
+    	run
+	let ids = -I(Vds)
+	let ro = 1/deriv(ids) 
+	setplot $output_plot
+	let ro_{$&const.l_act} = dc{$&count}.ro 
+    	let const.l_act = const.l_act + const.delta_l
+    end
+    
+    setplot $output_plot
+    plot all vs $&"dc1.v-sweep" ylabel 'Ro' xlabel 'Vds'
+.endc
+
+.end

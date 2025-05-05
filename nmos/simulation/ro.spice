@@ -1,0 +1,50 @@
+********** SIM **********
+.lib /usr/local/share/pdk/sky130A/libs.tech/ngspice/sky130.lib.spice tt
+.include nmos_characterization.spice
+
+*Vds VD VS 3.3V
+*Vgs VG VS 2.0V
+**Vsb VS VB 0.0V
+*Vbgnd VB GND 0.0V
+*Vsgnd VS GND 650mV
+Vdgnd VD GND 1.5V
+*Vgs VG VS 900mV
+Vggnd VG GND 1.2V
+*Vsb VS VB 0.0V
+Vbgnd VB GND 0.0V
+Vsgnd VS GND 300mV
+
+*.op
+*.dc Vgs 0.0 0.7 0.001
+*.dc Vds 1.15 2.55 0.01
+.dc Vdgnd 0 3.3 0.01
+*.dc Vsb 0.0 1.95 0.01
+
+.control
+    setplot new
+    setplot const
+    let start_l = 7
+    let stop_l = 13
+    let delta_l = 1
+    let l_act = start_l
+    let count = 0
+    set output_plot = 'unknown1'
+    * loop
+    while const.l_act le const.stop_l
+	let count = $&count + 1
+	alter @m.xm1.msky130_fd_pr__nfet_g5v0d10v5[l] const.l_act
+	save all @m.xm1.msky130_fd_pr__nfet_g5v0d10v5[l]
+    	run
+	*let ids = -I(Vds)
+	let ids = -I(Vdgnd)
+	let ro = 1/deriv(ids) 
+	setplot $output_plot
+	let ro_{$&const.l_act} = dc{$&count}.ro 
+    	let const.l_act = const.l_act + const.delta_l
+    end
+    
+    setplot $output_plot
+    plot all vs $&"dc1.v-sweep" ylabel 'Ro' xlabel 'Vds'
+.endc
+
+.end

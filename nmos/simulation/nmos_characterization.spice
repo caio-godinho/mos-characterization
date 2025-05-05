@@ -1,0 +1,10 @@
+** sch_path: /home/caio-godinho/repos/mos-characteriazation/nmos/nmos_characterization.sch
+**.subckt nmos_characterization VG VD VS VB
+*.ipin VG
+*.ipin VD
+*.ipin VS
+*.ipin VB
+XM1 VD VG VS VB sky130_fd_pr__nfet_g5v0d10v5 L=1 W=1 nf=1 ad='int((1 + 1)/2) * 1 / 1 * 0.29' as='int((1 + 2)/2) * 1 / 1 * 0.29' pd='2*int((1 + 1)/2) * (1 / 1 + 0.29)'
++ ps='2*int((1 + 2)/2) * (1 / 1 + 0.29)' nrd='0.29 / 1 ' nrs='0.29 / 1 ' sa=0 sb=0 sd=0 mult=1 m=1
+**.ends
+.end

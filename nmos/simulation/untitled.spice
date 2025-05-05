@@ -1,0 +1,5 @@
+** sch_path: /home/caio-godinho/repos/mos-characteriazation/nmos/untitled.sch
+**.subckt untitled
+XC1 net1 net2 net3 sky130_fd_pr__cap_vpp_11p5x11p7_l1m1m2m3m4_shieldm5 mult=1 m=1
+**.ends
+.end
